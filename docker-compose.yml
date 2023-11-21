@@ -1,0 +1,23 @@
+version: '2.0'
+networks:
+    payroll-network:
+        external: true
+volumes:
+    mongodbvolume:
+services:
+    api:
+        container_name: payroll_service
+        build: .
+        networks:
+            - payroll-network
+        ports:
+            - "9001:5000"
+    mongo:
+        container_name: payroll_mongo
+        image: mongo
+        ports:
+            - 27017:27017
+        volumes:
+            - mongodbvolume:/data/db
+        networks:
+            - payroll-network
