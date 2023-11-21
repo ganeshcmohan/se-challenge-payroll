@@ -11,7 +11,8 @@ This repository contains a simple Flask API that can be run using Docker.
 1. Clone this repository:
 
     ```bash
-
+     git clone https://github.com/ganeshcmohan/se-challenge-payroll.git
+     cd se-challenge-payroll
     ```
 
 2. Build and start the services with `docker-compose`:
