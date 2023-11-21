@@ -1,153 +1,116 @@
-# Wave Software Development Challenge
+# Payroll service API with Docker
 
-Applicants for the Full-stack Developer role at Wave must
-complete the following challenge, and submit a solution prior to the onsite
-interview.
+This repository contains a simple Flask API that can be run using Docker.
 
-The purpose of this exercise is to create something that we can work on
-together during the onsite. We do this so that you get a chance to collaborate
-with Wavers during the interview in a situation where you know something better
-than us (it's your code, after all!)
+## Prerequisites
 
-There isn't a hard deadline for this exercise; take as long as you need to
-complete it. However, in terms of total time spent actively working on the
-challenge, we ask that you not spend more than a few hours, as we value your
-time and are happy to leave things open to discussion in the on-site interview.
+- Docker installed on your machine.
 
-Please use whatever programming language and framework you feel the most
-comfortable with.
+## Setup Instructions
 
-Feel free to email [dev.careers@waveapps.com](dev.careers@waveapps.com) if you
-have any questions.
+1. Clone this repository:
 
-## Project Description
+    ```bash
 
-Imagine that this is the early days of Wave's history, and that we are prototyping a new payroll system API. A front end (that hasn't been developed yet, but will likely be a single page application) is going to use our API to achieve two goals:
+    ```
 
-1. Upload a CSV file containing data on the number of hours worked per day per employee
-1. Retrieve a report detailing how much each employee should be paid in each _pay period_
+2. Build and start the services with `docker-compose`:
 
-All employees are paid by the hour (there are no salaried employees.) Employees belong to one of two _job groups_ which determine their wages; job group A is paid $20/hr, and job group B is paid $30/hr. Each employee is identified by a string called an "employee id" that is globally unique in our system.
+    ```bash
+    docker-compose up --build
+    ```
 
-Hours are tracked per employee, per day in comma-separated value files (CSV).
-Each individual CSV file is known as a "time report", and will contain:
+This will build the Docker image for your Flask API and start it using `docker-compose`. The API will be accessible at `http://localhost:9001`.
 
-1. A header, denoting the columns in the sheet (`date`, `hours worked`,
-   `employee id`, `job group`)
-1. 0 or more data rows
+### Shutting Down
 
-In addition, the file name should be of the format `time-report-x.csv`,
-where `x` is the ID of the time report represented as an integer. For example, `time-report-42.csv` would represent a report with an ID of `42`.
+To stop the running containers, press `Ctrl + C` in the terminal where `docker-compose up` is running. To remove the containers completely, run:
 
-You can assume that:
+```bash
+docker-compose down
+    ```
 
-1. Columns will always be in that order.
-1. There will always be data in each column and the number of hours worked will always be greater than 0.
-1. There will always be a well-formed header line.
-1. There will always be a well-formed file name.
+## Endpoints
 
-A sample input file named `time-report-42.csv` is included in this repo.
+### Endpoint 1: `/payroll/list`
 
-### What your API must do:
+- **Method**: GET
+- **Description**: Returns employess payroll report list
+- **Usage**:
 
-We've agreed to build an API with the following endpoints to serve HTTP requests:
+    ```bash
+    curl http://localhost:9001/payroll/list
+    ```
 
-1. An endpoint for uploading a file.
+- **Response**:
 
-   - This file will conform to the CSV specifications outlined in the previous section.
-   - Upon upload, the timekeeping information within the file must be stored to a database for archival purposes.
-   - If an attempt is made to upload a file with the same report ID as a previously uploaded file, this upload should fail with an error message indicating that this is not allowed.
-
-2. An endpoint for retrieving a payroll report structured in the following way:
-
-   _NOTE:_ It is not the responsibility of the API to return HTML, as we will delegate the visual layout and redering to the front end. The expectation is that this API will only return JSON data.
-
-   - Return a JSON object `payrollReport`.
-   - `payrollReport` will have a single field, `employeeReports`, containing a list of objects with fields `employeeId`, `payPeriod`, and `amountPaid`.
-   - The `payPeriod` field is an object containing a date interval that is roughly biweekly. Each month has two pay periods; the _first half_ is from the 1st to the 15th inclusive, and the _second half_ is from the 16th to the end of the month, inclusive. `payPeriod` will have two fields to represent this interval: `startDate` and `endDate`.
-   - Each employee should have a single object in `employeeReports` for each pay period that they have recorded hours worked. The `amountPaid` field should contain the sum of the hours worked in that pay period multiplied by the hourly rate for their job group.
-   - If an employee was not paid in a specific pay period, there should not be an object in `employeeReports` for that employee + pay period combination.
-   - The report should be sorted in some sensical order (e.g. sorted by employee id and then pay period start.)
-   - The report should be based on all _of the data_ across _all of the uploaded time reports_, for all time.
-
-As an example, given the upload of a sample file with the following data:
-
-   | date       | hours worked | employee id | job group |
-   | ---------- | ------------ | ----------- | --------- |
-   | 4/1/2023   | 10           | 1           | A         |
-   | 14/1/2023  | 5            | 1           | A         |
-   | 20/1/2023  | 3            | 2           | B         |
-   | 20/1/2023  | 4            | 1           | A         |
-
-A request to the report endpoint should return the following JSON response:
-
-   ```json
+    ```json
    {
-     "payrollReport": {
-       "employeeReports": [
-         {
-           "employeeId": "1",
-           "payPeriod": {
-             "startDate": "2023-01-01",
-             "endDate": "2023-01-15"
-           },
-           "amountPaid": "$300.00"
-         },
-         {
-           "employeeId": "1",
-           "payPeriod": {
-             "startDate": "2023-01-16",
-             "endDate": "2023-01-31"
-           },
-           "amountPaid": "$80.00"
-         },
-         {
-           "employeeId": "2",
-           "payPeriod": {
-             "startDate": "2023-01-16",
-             "endDate": "2023-01-31"
-           },
-           "amountPaid": "$90.00"
-         }
-       ]
-     }
-   }
-   ```
+    "payrollReport": {
+        "employeeReports": [
+            {
+                "amountPaid": "$370.00",
+                "employeeId": 1,
+                "payPeriod": {
+                    "endDate": "2023-11-15",
+                    "startDate": "2023-11-01"
+                }
+            },
+            {
+                "amountPaid": "$930.00",
+                "employeeId": 2,
+                "payPeriod": {
+                    "endDate": "2023-11-15",
+                    "startDate": "2023-11-01"
+                }
+            },
+            {
+                "amountPaid": "$590.00",
+                "employeeId": 3,
+                "payPeriod": {
+                    "endDate": "2023-11-15",
+                    "startDate": "2023-11-01"
+                }
+            },
+            {
+                "amountPaid": "$600.00",
+                "employeeId": 4,
+                "payPeriod": {
+                    "endDate": "2023-11-15",
+                    "startDate": "2023-11-01"
+                }
+            }
+        ]
+    }
+}
+    ```
 
-We consider ourselves to be language agnostic here at Wave, so feel free to use any combination of technologies you see fit to both meet the requirements and showcase your skills. We only ask that your submission:
+### Endpoint 2: `/payroll/upload-report`
 
-- Is easy to set up
-- Can run on either a Linux or Mac OS X developer machine
-- Does not require any non open-source software
-- Includes all the source code you write for the submission, including any models used for setting up your database
+- **Method**: POST
+- **Description**: Upload a csv file contains employes timely report.Sample csv report file is included `time-report-42.csv`
+- **Usage**:
 
-### Documentation:
+- Use tools like `curl` or Postman to send a POST request to `http://localhost:9001/payroll/upload-report` with a file attached in form-data.
 
-Please commit the following to this `README.md`:
+      In Postman:
+        1. Set the request type to POST.
+        2. Enter the URL: `http://localhost:9001/payroll/upload-report`.
+        3. Select the Body tab and choose `form-data`.
+        4. Add a key named `csv_file` and select a file to upload.
 
-1. Instructions on how to build/run your application
-1. Answers to the following questions:
-   - How did you test that your implementation was correct?
-   - If this application was destined for a production environment, what would you add or change?
-   - What compromises did you have to make as a result of the time constraints of this challenge?
+      In `curl`:
 
-## Submission Instructions
+      ```bash
+      curl -X POST -F "csv_file=@/path/to/your/file.csv" http://localhost:9001/payroll/upload-report
+      ```
 
-1. Clone the repository.
-1. Complete your project as described above within your local repository.
-1. Ensure everything you want to commit is committed.
-1. Create a git bundle: `git bundle create your_name.bundle --all`
-1. Email the bundle file to [dev.careers@waveapps.com](dev.careers@waveapps.com) and CC the recruiter you have been in contact with.
+      Replace `/path/to/your/file.csv` with the path to the file you want to upload.
 
-## Evaluation
+## Contributing
 
-Evaluation of your submission will be based on the following criteria.
+If you'd like to contribute to this project, feel free to fork the repository and submit a pull request with your changes.
 
-1. Did you follow the instructions for submission?
-1. Did you complete the steps outlined in the _Documentation_ section?
-1. Were models/entities and other components easily identifiable to the
-   reviewer?
-1. What design decisions did you make when designing your models/entities? Are
-   they explained?
-1. Did you separate any concerns in your application? Why or why not?
-1. Does your solution use appropriate data types for the problem as described?
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
