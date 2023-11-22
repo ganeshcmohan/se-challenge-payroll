@@ -4,7 +4,10 @@ This repository contains a simple Flask API that can be run using Docker.
 
 ## Prerequisites
 
-- Docker installed on your machine.
+- **Docker:** Install Docker by following the instructions for your operating system:
+  - [Docker Installation Guide](https://docs.docker.com/get-docker/)
+- **Docker Compose:** Install Docker Compose by following the instructions for your operating system:
+   - [Docker Compose Installation Guide](https://docs.docker.com/compose/install/)
 
 ## Setup Instructions
 
