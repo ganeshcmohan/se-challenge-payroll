@@ -1,6 +1,8 @@
-from datetime import datetime, timedelta
 from collections import defaultdict
+from datetime import datetime, timedelta
+
 from flask import current_app
+
 from .models import PayPeriod, Payroll
 
 
